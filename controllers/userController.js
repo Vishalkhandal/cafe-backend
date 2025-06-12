@@ -49,3 +49,52 @@ exports.deleteUser = async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 };
+
+exports.registerUser = async (req, res) => {
+    const { name, email, password, address } = req.body;
+
+    try {
+        const existingUser = await User.findOne({ email });
+        if (existingUser) return res.status(400).json({ message: "User already exists" });
+
+        const user = new User({ name, email, password, address });
+        await user.save();
+
+        const token = user.generateToken();
+        res.status(201).json({
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                address: user.address,
+            },
+            token
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.loginUser = async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) return res.status(400).json({ message: "Invalid credentials" });
+
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+
+        const token = user.generateToken();
+        res.status(200).json({
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            },
+            token
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
