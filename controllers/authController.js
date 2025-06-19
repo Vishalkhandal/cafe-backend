@@ -7,14 +7,12 @@ const registerUser = async (req, res) => {
 
     try {
         const existingUser = await User.findOne({ email });
-        if (existingUser) return res.status(400).json({ message: "User already exists" });
+        if (existingUser) return res.status(400).json({ msg: "User with this email already exists" });
 
-        const hashedPassword = await hashPassword(password); // <-- Rename variable
+        const hashedPassword = await hashPassword(password); 
 
         const user = new User({ name, email, password: hashedPassword, address });
         await user.save();
-
-        // Parse REFRESH_TOKEN_EXPIRATION_TIME from env
 
         res.status(201).json({
             msg: 'User registered successfully',
@@ -23,7 +21,6 @@ const registerUser = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 address: user.address,
-                password: user.password
             },
         });
     } catch (err) {
@@ -37,7 +34,7 @@ const loginUser = async (req, res) => {
     try {
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(401).json({ message: 'Invalid Credentials' })
+            return res.status(401).json({ msg: 'Invalid Credentials' })
         }
 
         const isMatch = await comparePassword(password, user.password);
@@ -64,7 +61,6 @@ const loginUser = async (req, res) => {
 }
 
 const logoutUser = async (req, res) => {
-    
     try {
         res.status(200).json({ msg: "Logged out successfully" });
     } catch (err) {
@@ -76,5 +72,5 @@ const logoutUser = async (req, res) => {
 module.exports = {
     registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
 }
