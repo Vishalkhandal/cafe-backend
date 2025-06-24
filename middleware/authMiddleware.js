@@ -1,18 +1,24 @@
-const {verifyAccessToken} = require('../utils/jwt');
+const { verifyAccessToken } = require('../utils/jwt');
 
 const authMiddleware = (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    let token = req.cookies.token;
+    
+    // Fallback: check Authorization header
+    if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
+
+    if(!token) {
         return res.status(401).json({ message: 'Access denied. No token provided.' });
     }
-    const token = authHeader.split(' ')[1];
+    
     try {
-        const decoded = verifyAccessToken(token);
-        console.log("verify token decoded is: ", decoded);
-        req.user = decoded;   // { id: '68529e9f5b688355255843a4', iat: 1750330611, exp: 1750334211 }
+        const decoded = verifyAccessToken(req.cookies.token);
+        req.user = decoded;   
         next();
     } catch (err) {
-        return res.status(401).json({ message: 'Invalid or expired token.' });
+        console.error('Token verification failed:', err.message);
+        return res.status(403).json({ message: 'Invalid Token: Token is not valid or expired' });
     }
 };
 

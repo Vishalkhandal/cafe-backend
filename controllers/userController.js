@@ -13,22 +13,33 @@ const createUser = async (req, res) => {
 
 // Get All Users
 const getUsers = async (req, res) => {
-    const users = await User.find();
-    res.json(users);
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };
 
-// Get User by ID
+// Get User by ID (from token)
 const getUser = async (req, res) => {
     try {
+        console.log("req.user:", req.user); 
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ error: 'Unauthorized: No user in request' });
+        }
         const user = await User.findById(req.user.id); // Use id from token
         if (!user) return res.status(404).json({ error: 'User not found' });
         console.log("User Found: ", user);
-        res.status(200).json(user);
+        res.status(200).json({
+            message: `Welcome to the protected route, ${user.name}!`,
+            userId: user._id,
+            userEmail: user.email,
+            user,
+        });
     } catch (err) {
         console.error("Error fetching user:", err);
         res.status(500).json({ error: 'Internal server error' });
-
-        // res.status(400).json({ error: err.message });
     }
 };
 
@@ -54,10 +65,10 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = { 
-    createUser, 
-    getUsers, 
-    getUser, 
-    updateUser, 
-    deleteUser 
+module.exports = {
+    createUser,
+    getUsers,
+    getUser,
+    updateUser,
+    deleteUser
 }
