@@ -51,13 +51,14 @@ const loginUser = async (req, res) => {
         console.log(payload, "payload is this");
         const token = generateAccessToken(payload);
 
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // true in production
-            sameSite: 'strict', // or 'strict' or 'none' if using HTTPS
-            maxAge: 3600000 // 1 hour in milliseconds
-            // maxAge: 60000 // 1 minute in milliseconds
-        });
+        // res.cookie('token', token, {
+        //     httpOnly: true,
+        //     secure: false,
+        //     // secure: process.env.NODE_ENV === 'production', // true in production
+        //     sameSite: 'none', // or 'strict' or 'none' if using HTTPS
+        //     maxAge: 6 * 3600000 // 6 hour in milliseconds
+        //     // maxAge: 60000 // 1 minute in milliseconds
+        // });
 
         res.status(200).json({
             msg: 'Logged in successfully',
@@ -76,12 +77,12 @@ const loginUser = async (req, res) => {
 
 const logoutUser = async (req, res) => {
     try {
-        res.cookie('token', '', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            expires: new Date(0)
-        });
+        // res.cookie('token', '', {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production',
+        //     sameSite: 'strict',
+        //     expires: new Date(0)
+        // });
         res.status(200).json({ msg: "Logged out successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });

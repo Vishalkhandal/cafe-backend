@@ -1,7 +1,8 @@
 const { verifyAccessToken } = require('../utils/jwt');
 
 const authMiddleware = (req, res, next) => {
-    let token = req.cookies.token;
+    // let token = req.cookies.token;
+    let token = "";
     
     // Fallback: check Authorization header
     if (!token && req.headers.authorization?.startsWith('Bearer ')) {
@@ -13,7 +14,7 @@ const authMiddleware = (req, res, next) => {
     }
     
     try {
-        const decoded = verifyAccessToken(req.cookies.token);
+        const decoded = verifyAccessToken(token);
         req.user = decoded;   
         next();
     } catch (err) {
